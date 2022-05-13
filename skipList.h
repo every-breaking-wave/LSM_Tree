@@ -46,6 +46,7 @@ private:
     double my_rand();
     int randomLevel();
     int MaxLevel;
+    string deleteMark;
 
 public:
     SkipList()
@@ -53,15 +54,17 @@ public:
         head = new SKNode(-1, "", SKNodeType::HEAD);
         NIL = new SKNode(INT_MAX, "", SKNodeType::NIL);
         this->MaxLevel = MAX_LEVEL;
+        deleteMark = "~DELETED~";
         for (int i = 0; i < MAX_LEVEL; ++i)
         {
             head->forwards[i] = NIL;
         }
     }
     SKNode * getHead(){return this->head;}
+    SKNode * getNil(){return  this->NIL;}
     void Insert(uint64_t key, const std::string &s);
     string Search(uint64_t key);
-    void Delete(uint64_t key);
+    bool Delete(uint64_t key);
     void Display();
     void clear();
     ~SkipList()

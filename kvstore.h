@@ -18,6 +18,7 @@ private:
 public:
     SkipList *MEMTable;
     SSTable *disk;
+    string rootPath = "../SSTable/level";
 
     KVStore(const std::string &dir);
 
@@ -36,4 +37,5 @@ public:
     bool isOverSize(int sizeOfValue);
 
     void MEMtoSS();
+
 };

@@ -31,15 +31,17 @@ double build_SkipList(SkipList *SkipList, string input_file_path) {
 }
 
 
-int main() {
-    KVStore *kv = new KVStore("../SSTable");
-
-    kv->MEMTable->Insert(3, "good");
-    kv->MEMTable->Insert(2, "haha");
-//     build_SkipList(&(kv->MEMTable),"../testFile/test1");
-//     kv->MEMTable.Display();
-    kv->MEMtoSS();
-    cout<<kv->disk->get(1);
-    delete kv;
-    return 0;
-}
+//int main() {
+//    KVStore *kv = new KVStore("../SSTable");
+//
+//    kv->MEMTable->Insert(3, "good");
+//    kv->MEMTable->Insert(2, "haha");
+////     build_SkipList(&(kv->MEMTable),"../testFile/test1");
+////     kv->MEMTable.Display();
+//    kv->MEMtoSS();
+//    cout<<kv->disk->get(3);
+//
+////    kv->reset();
+//    delete kv;
+//    return 0;
+//}

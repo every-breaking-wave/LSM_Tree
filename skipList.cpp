@@ -28,8 +28,8 @@ int SkipList::randomLevel()
 
 void SkipList::Insert(uint64_t key, const std::string &value){
 
-    int curLevel = 8;
-    for(int i = 7; i >=0; i--){
+    int curLevel = MaxLevel;
+    for(int i = MaxLevel - 1; i >=0; i--){
         if(head->forwards[i] == NIL){
             curLevel--;
         }
@@ -100,7 +100,7 @@ string SkipList::Search(uint64_t key)
     }
     i++;
     node = node->forwards[0];
-    if(node->key == key){  // 找到了
+    if(node->key == key && node->val != deleteMark){  // 找到了
         return node->val;
     }
     else {  // 没找到
@@ -109,7 +109,7 @@ string SkipList::Search(uint64_t key)
 
 }
 
-void SkipList::Delete(uint64_t key)
+bool SkipList::Delete(uint64_t key)
 {
     //   vector<SKNode *> update;
     int curLevel = this->MaxLevel;
@@ -132,18 +132,25 @@ void SkipList::Delete(uint64_t key)
         update[i] = node;  // 每次下移记录一次路线便于insert后修改之前变量的forward指针
     }
     node = node->forwards[0];
-    if(node->key == key){
-        for(int i  = 0; i < curLevel; i++){
-            if(update[i]->forwards[i] != node){  // 该节点的高度不够
-                break;
-            }
-            update[i]->forwards[i] = node->forwards[i];
-        }
-        //delete node;
+    // 对跳表的删除改为 插入<key, ”~DELETE~">
+    if(node->key == key && node->val != deleteMark)
+    {
+        this->Insert(key, deleteMark);
+        return true;
     }
-    while (curLevel > 1 && head->forwards[curLevel - 1]->type == SKNodeType::NIL)  {  // 调整lsit的高度
-        curLevel--;
-    }
+    return false;
+//    if(node->key == key){
+//        for(int i  = 0; i < curLevel; i++){
+//            if(update[i]->forwards[i] != node){  // 该节点的高度不够
+//                break;
+//            }
+//            update[i]->forwards[i] = node->forwards[i];
+//        }
+//        //delete node;
+//    }
+//    while (curLevel > 1 && head->forwards[curLevel - 1]->type == SKNodeType::NIL)  {  // 调整lsit的高度
+//        curLevel--;
+//    }
 
 }
 

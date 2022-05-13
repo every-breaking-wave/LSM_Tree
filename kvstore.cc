@@ -51,14 +51,40 @@ std::string KVStore::get(uint64_t key) {
  * Returns false iff the key is not found.
  */
 bool KVStore::del(uint64_t key) {
-    return false;
+    return MEMTable->Delete(key);
 }
+
+
+
 
 /**
  * This resets the kvstore. All key-value pairs should be removed,
  * including memtable and all sstables files.
  */
 void KVStore::reset() {
+    this->MEMTable->clear();
+//    remove("../SSTable");
+    int level = 0;
+    // 先删掉文件，再删掉空文件夹
+    while(true)
+    {
+        string levelPath = rootPath+ to_string(level);
+        vector<string> ret;
+        if(utils::dirExists(levelPath))                   //先删文件,再删空目录
+        {
+            utils::scanDir(levelPath,ret);
+            for(auto & i : ret)
+            {
+                utils::rmfile((levelPath+"/"+i).c_str());
+            }
+            utils::rmdir(levelPath.c_str());
+        }
+        else
+        {
+            break;
+        }
+        level++;
+    }
 }
 
 /**
@@ -67,6 +93,9 @@ void KVStore::reset() {
  * An empty string indicates not found.
  */
 void KVStore::scan(uint64_t key1, uint64_t key2, std::list<std::pair<uint64_t, std::string> > &list) {
+    for(uint64_t i = key1; i <= key2; i++){
+        list.emplace_back(make_pair(i, MEMTable->Search(i)));
+    }
 }
 
 /**
@@ -78,26 +107,31 @@ bool KVStore::isOverSize(int sizeOfValue) {
     return judgeSize > 2 * 1024 * 1024;
 }
 
+/**
+ * 将存在内存（调表）中的数据保存到disk中的SSTable,并生成缓存信息Msg，供之后访问使用
+ */
 void KVStore::MEMtoSS() {
-    cout<<"tram";
+    if(MEMTable->getHead()->forwards[0] == MEMTable->getNil()){
+        return;
+    }
     //准备工作
     SKNode *node = MEMTable->getHead()->forwards[0];
-    std::string rootPath = "../SSTable/level0";
-    const char *root = rootPath.c_str();
-    if (!utils::dirExists(rootPath)) {
-        utils::mkdir("../SSTable/level0");
+//    std::string rootPath = "../SSTable/level";
+    const char *root = this->rootPath.c_str();
+    if (!utils::dirExists(rootPath + "0")) {
+        utils::mkdir((rootPath + "0").c_str());
     }
     std::vector<string> ret;
-    int fileNum = utils::scanDir(rootPath, ret) + 1;   // 既是命名也是时间戳
+    int fileNum = utils::scanDir(rootPath+"0", ret) + 1;   // 既是命名也是时间戳
     int offset = 0;
     bloomFilter *bf = new bloomFilter();
     uint64_t numOfKey = 0;
 
     // 生成sst文件
-    string filename = rootPath + "/sstable" + to_string(fileNum) + ".sst";
+    string filename = rootPath + "0/sstable" + to_string(fileNum) + ".sst";
     fstream out(filename, ios::binary | ios::out);
 
-    // 遍历MEMTable
+    // 在底层遍历MEMTable
     vector<pair<uint64_t, string>> pair;  // 键值对vector
     vector<uint32_t> offsets;
     while (node->type != NIL) {
@@ -119,7 +153,7 @@ void KVStore::MEMtoSS() {
     out.write((char *) &pair.end()->first, sizeof(uint64_t)); // 最大的key
 
     /**
-     * 生成BloomFilter大小为 10 KB （10240 字节）
+     * 生成 BloomFilter 大小为 10 KB （10240 字节）
      */
     out.write((char *) bf->bloomTable, sizeof(bf->bloomTable));
 
@@ -155,4 +189,21 @@ void KVStore::MEMtoSS() {
     memcpy(&msg->bf->bloomTable, &bf->bloomTable, 10240);
     disk->allMsg.emplace_back(msg);
 
+    /**
+     *重置内存内容
+     */
+    MEMTable->clear();
+    judgeSize = 32 + 1024;
+
+    /**
+     * 更新disk的相关信息,文件数超标，进行compaction
+     */
+    if(++disk->tableInLevel[0] > 2){
+        this->disk->compaction();
+    }
+
+
+
 }
+
+

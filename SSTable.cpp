@@ -34,6 +34,8 @@ void SSTable::put(uint64_t key) {
  */
 string SSTable::get(uint64_t key) {   // 目前只需要在level0找
     string findStr;
+//    printf("find in cache\n");
+//    fflush(stdout);
     string path = "../SSTable/level";
     for (int i = 0; i < allMsg.size(); ++i) {
         if (key >= allMsg[i]->min && key <= allMsg[i]->max && allMsg[i]->bf->isInserted(key)) {
@@ -85,6 +87,8 @@ string SSTable::getStringInSST(string path, uint32_t begOffset, uint32_t endOffs
             // read byte by byte
             in.read((char *) (&tmp), sizeof(tmp));
             findStr += tmp;
+            printf("%c",tmp);
+            fflush(stdout);
         }
     } else {
         in.seekg(0, ios::end);
@@ -103,6 +107,8 @@ string SSTable::getStringInSST(string path, uint32_t begOffset, uint32_t endOffs
 }
 
 void SSTable::compaction() {
+    // 获取每个分块的min和max
+    int min,max;
 
 }
 

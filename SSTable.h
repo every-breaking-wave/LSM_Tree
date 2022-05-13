@@ -31,6 +31,8 @@ public:
     string getStringInSST(string path, uint32_t begOffset, uint32_t endOffset);
 
     void compaction();
+
+    void getMinMax(int level, int );
 };
 
 

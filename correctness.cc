@@ -96,7 +96,7 @@ public:
 		regular_test(SIMPLE_TEST_MAX);
 
 		std::cout << "[Large Test]" << std::endl;
-		regular_test(LARGE_TEST_MAX);
+//		regular_test(LARGE_TEST_MAX);
 	}
 };
 
