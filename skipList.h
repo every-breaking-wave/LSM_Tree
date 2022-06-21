@@ -12,7 +12,7 @@
 #include <climits>
 #include <time.h>
 #include <iostream>
-#define MAX_LEVEL 8
+#define MAX_LEVEL 10
 using namespace std;
 enum SKNodeType
 {
@@ -62,9 +62,10 @@ public:
     }
     SKNode * getHead(){return this->head;}
     SKNode * getNil(){return  this->NIL;}
-    void Insert(uint64_t key, const std::string &s);
+    int Insert(uint64_t key, const std::string &s);
     string Search(uint64_t key);
     bool Delete(uint64_t key);
+    string getDeleteMark(){ return deleteMark; }
     void Display();
     void clear();
     ~SkipList()

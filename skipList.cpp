@@ -26,7 +26,7 @@ int SkipList::randomLevel()
 }
 
 
-void SkipList::Insert(uint64_t key, const std::string &value){
+int SkipList::Insert(uint64_t key, const std::string &value){
 
     int curLevel = MaxLevel;
     for(int i = MaxLevel - 1; i >=0; i--){
@@ -48,7 +48,7 @@ void SkipList::Insert(uint64_t key, const std::string &value){
             insertNode->forwards[i] = NIL;
             head->forwards[i] = insertNode;
         }
-        return;
+        return value.size() + 12;
     }
     for( i = MaxLevel - 1; i >= 0; i--){
         while ( node->forwards[i]->key < key){
@@ -59,8 +59,10 @@ void SkipList::Insert(uint64_t key, const std::string &value){
     }
     node = node->forwards[0];
     if(node->key == key){
+        int size;
+        size = value.size() - node->val.size();
         node->val = value;  // 更新node的值
-        return;
+        return size;  // 把不应该产生的size变化修改回去
     }
     else {   // 不等，则在后面插入新节点
         int level = randomLevel();
@@ -77,14 +79,13 @@ void SkipList::Insert(uint64_t key, const std::string &value){
             update[i]->forwards[i] = insertNode;
         }
     }
-
+    return  value.size() + 12;
 }
 
 string SkipList::Search(uint64_t key)
 {
-    // TODO
-    int curLevel = 8;
-    for(int i = 7; i >=0; i--){
+    int curLevel = this->MaxLevel;
+    for(int i = MaxLevel - 1; i >=0; i--){
         if(head->forwards[i] == NIL){
             curLevel--;
         }
@@ -100,8 +101,10 @@ string SkipList::Search(uint64_t key)
     }
     i++;
     node = node->forwards[0];
-    if(node->key == key && node->val != deleteMark){  // 找到了
+    if(node->key ==  key && node->val != deleteMark){  // 找到了
         return node->val;
+    } else if(node->key == key && node->val == deleteMark){ // deleted
+        return deleteMark;
     }
     else {  // 没找到
         return "@NOT@FOUND";
@@ -138,6 +141,8 @@ bool SkipList::Delete(uint64_t key)
         this->Insert(key, deleteMark);
         return true;
     }
+
+    //若不在 MEMTable, 需在 SSTable查找
     return false;
 //    if(node->key == key){
 //        for(int i  = 0; i < curLevel; i++){

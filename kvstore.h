@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <map>
 #include "SSmsg.h"
 #include "kvstore_api.h"
 #include "skipList.h"
@@ -18,17 +19,25 @@ private:
 public:
     SkipList *MEMTable;
     SSTable *disk;
+    std::map<uint64_t, string> map;
+    std::map<uint64_t, string>::iterator  it;
     string rootPath = "../SSTable/level";
 
-    KVStore(const std::string &dir);
+    explicit KVStore(const std::string &dir);
 
-    ~KVStore();
+    ~KVStore() override;
 
     void put(uint64_t key, const std::string &s) override;
 
     std::string get(uint64_t key) override;
 
     bool del(uint64_t key) override;
+
+    void mapPut(uint64_t key, const std::string &s);
+
+    std::string mapGet(uint64_t key);
+
+    bool mapDel(uint64_t key);
 
     void reset() override;
 
@@ -37,5 +46,7 @@ public:
     bool isOverSize(int sizeOfValue);
 
     void MEMtoSS();
+
+    void mapMEMtoSS();
 
 };

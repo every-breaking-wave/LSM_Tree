@@ -8,31 +8,70 @@
 #include <iostream>
 #include <vector>
 #include "SSmsg.h"
-
+#include <list>
+#define HEADER_SIZE 10272
+#define MAX_SIZE 2*1024*1024
 using namespace std;
 
 class SSTable {
-    int level;
+private:
+    int maxLevel{};
+    string rootPath = "../SSTable/level";
+    vector<pair<uint64_t,string>> pairs;
+    uint64_t fileId{};
+    uint64_t time{};
 
 public:
-    vector<SS_Msg *> allMsg;
-    vector<int> tableInLevel;
-
-    void addSS(string path, int level);
+    vector<vector<SS_Msg*>> allMsg;
 
     SSTable();
+     explicit SSTable(string & dir);
 
     ~SSTable();
 
-    void put(uint64_t key);
+    void initMsg();
 
     std::string get(uint64_t key);
 
-    string getStringInSST(string path, uint32_t begOffset, uint32_t endOffset);
+    bool find(uint64_t key);
 
-    void compaction();
+    static string getStringInSST(const string& path, uint32_t begOffset, uint32_t endOffset);
 
-    void getMinMax(int level, int );
+    void compaction01();
+
+    void compaction(int upperLevel);
+
+    void mergeSort(vector<SS_Msg*> overlapTables, vector<SS_Msg*> upperTables, int upperLevel);
+
+    void readPairsByMsg(SS_Msg * ssMsg);
+
+    void readStringVal(const string& filename, uint32_t beg,uint32_t end, string & val);
+
+    void merge_sort(vector<pair<uint64_t, string>> forSortingPairs);
+
+    uint64_t newFileId() const  { return fileId;}
+
+    void addFileId()  {fileId++;}
+
+    uint64_t getTimeStamp() const{
+        return time;
+    }
+
+    void updateTimeStamp(){
+        time++;
+    }
+
+    void mkSSTablesByPairs(vector<pair<uint64_t,string>> sortedPairs, int lowerLevel, uint64_t timeStamp);
+
+    string getValDirectlyFromSST(uint64_t key);
+
+    void setTimeStamp(uint64_t time){
+        this->time = time;
+    }
+
+    void setFileId(uint64_t id){
+        this->fileId = id;
+    }
 };
 
 

@@ -15,7 +15,7 @@ void bloomFilter::insert(uint64_t key){
         this->hash[i] = 0;
     }
     MurmurHash3_x64_128(&key,sizeof(key),1,hash);
-    cout<<hash;
+//    cout<<hash;
     for(int i=0;i<4;i++)
     {
        bloomTable[hash[i] % BLOOM_SIZE]=true;
