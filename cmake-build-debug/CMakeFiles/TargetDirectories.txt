@@ -1,5 +1,0 @@
-C:/Users/Feng/Desktop/code/LSM_Tree/cmake-build-debug/CMakeFiles/lsm_tree.dir
-C:/Users/Feng/Desktop/code/LSM_Tree/cmake-build-debug/CMakeFiles/correctness.dir
-C:/Users/Feng/Desktop/code/LSM_Tree/cmake-build-debug/CMakeFiles/persistence.dir
-C:/Users/Feng/Desktop/code/LSM_Tree/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/Feng/Desktop/code/LSM_Tree/cmake-build-debug/CMakeFiles/rebuild_cache.dir
